@@ -24,17 +24,20 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         if (userMap.containsKey(user.getId())) {
+            log.debug("User id:{}", user.getId());
             throw new IdException("Id already use");
         }
         user.setId(setId());
         validate(user);
         userMap.put(user.getId(), user);
+        log.info("User with id:{} create", user.getId());
         return user;
     }
 
     public void validate(User user) {
         if (user.getName().isBlank() || user.getName() == null) {
             user.setName(user.getLogin());
+            log.debug("User id:{}, with empty name", user.getId());
         }
     }
 
@@ -46,10 +49,12 @@ public class UserController {
     @PutMapping
     public User put(@Valid @RequestBody User user) {
         if (!userMap.containsKey(user.getId())) {
+            log.debug("User id:{}", user.getId());
             throw new IdException("Id not found");
         }
         validate(user);
         userMap.put(user.getId(), user);
+        log.info("User with id:{} update", user.getId());
         return user;
     }
 }
