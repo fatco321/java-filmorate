@@ -19,28 +19,28 @@ public class ValidatorTest {
     public void test01_FilmValidateWithCorrectModel() {
         Film film = new Film(1, "Test Name", "Test",
                 LocalDate.of(2000, 12, 1), 20);
-        filmController.validate(film);
+        assertEquals(film, filmController.create(film));
     }
 
     @Test
     public void test02_FilmValidateWithInCorrectReleaseDate() {
         Film film = new Film(1, "Test Name", "Test",
                 LocalDate.of(1000, 12, 1), 20);
-        assertThrows(ValidationException.class, () -> filmController.validate(film));
+        assertThrows(ValidationException.class, () -> filmController.create(film));
     }
 
     @Test
     public void test04_UserValidateWithCorrectModel() {
         User user = new User(1, "yandex@ya.ru", "yandex", "Test",
                 LocalDate.of(2000, 1, 1));
-        userController.validate(user);
+        assertEquals(user, userController.create(user));
     }
 
     @Test
     public void test06_UserValidateWithEmptyName() {
         User user = new User(1, "yandex@ya.ru", "yandex", "",
                 LocalDate.of(2000, 1, 1));
-        userController.validate(user);
+        userController.create(user);
         assertEquals(user.getName(), user.getLogin());
     }
 }

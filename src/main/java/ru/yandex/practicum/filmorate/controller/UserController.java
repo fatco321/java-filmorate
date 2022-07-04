@@ -34,7 +34,7 @@ public class UserController {
         return user;
     }
 
-    public void validate(User user) {
+    private void validate(User user) {
         if (user.getName().isBlank() || user.getName() == null) {
             user.setName(user.getLogin());
             log.debug("User id:{}, with empty name", user.getId());

@@ -37,7 +37,7 @@ public class FilmController {
         return film;
     }
 
-    public void validate(Film film) {
+    private void validate(Film film) {
         if (film.getReleaseDate().isBefore(FIRST_FILM_RELEASE)) {
             log.debug("film not valid release date:{}", film.getReleaseDate());
             throw new ValidationException("Release date not valid");
