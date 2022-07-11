@@ -6,13 +6,14 @@ import lombok.Setter;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class Film {
-    private int id;
+    private long id;
     @NotBlank(message = "name is blank")
     private String name;
     @NotBlank(message = "description is blank")
@@ -23,4 +24,5 @@ public class Film {
     @NotNull
     @Positive(message = "duration is negative")
     private Integer duration;
+    private Set<Long>usersLike;
 }
