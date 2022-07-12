@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmLikeNotFoundException;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Getter
+@Slf4j
 public class FilmService {
     private final InMemoryFilmStorage filmStorage;
 
@@ -22,6 +24,7 @@ public class FilmService {
     }
 
     private void checkId(Long filmId, Long userId) {
+        log.debug("check user {} check film {}", userId, filmId);
         if (filmId == null || filmId <= 0 || userId == null || userId <= 0) {
             throw new IdNotFoundException(String.format("User with id:%s or film with id:%s not found", userId, filmId));
         }
@@ -32,15 +35,18 @@ public class FilmService {
 
     public void addFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
+        log.debug("User {} likes film {}", userId, filmId);
         filmStorage.findFilmById(filmId).getUsersLike().add(userId);
     }
 
     public void deleteFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         if (!filmStorage.findFilmById(filmId).getUsersLike().contains(userId)) {
+            log.debug("user {} deleted like film {}", userId, filmId);
             throw new FilmLikeNotFoundException(String.format("User with id:%s not like film with id:%s"
                     , userId, filmId));
         }
+        log.debug("user {} deleted like film {}", userId, filmId);
         filmStorage.findFilmById(filmId).getUsersLike().remove(userId);
     }
 

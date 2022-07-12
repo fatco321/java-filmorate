@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 public class User {
     private long id;
