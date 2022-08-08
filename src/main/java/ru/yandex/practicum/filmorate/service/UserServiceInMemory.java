@@ -2,29 +2,33 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserFriendException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.userstorage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.serviseinterface.UserService;
+import ru.yandex.practicum.filmorate.storage.userstorage.storageinterface.UserStorage;
+import ru.yandex.practicum.filmorate.storage.userstorage.storageinterface.FriendsDao;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Service
+@Service("inMemoryUserService")
 @Getter
 @Slf4j
-public class UserService {
-    private final InMemoryUserStorage userStorage;
+public class UserServiceInMemory implements UserService {
+    private final UserStorage userStorage;
+    private final FriendsDao friendsDao;
 
-    @Autowired
-    public UserService(InMemoryUserStorage inMemoryUserStorage) {
-        this.userStorage = inMemoryUserStorage;
+    public UserServiceInMemory(@Qualifier("dbUserStorage") UserStorage userStorage, FriendsDao friendsDao) {
+        this.userStorage = userStorage;
+        this.friendsDao = friendsDao;
     }
 
+    @Override
     public void addFriend(long userId, long friendUserId) {
         checkUserAndFriendId(userId, friendUserId);
         if (userStorage.findUserById(userId).getFriendsId().contains(userStorage.findUserById(friendUserId).getId())) {
@@ -41,8 +45,10 @@ public class UserService {
         log.debug("User {} add friend user {}", userId, friendUserId);
         userStorage.findUserById(userId).getFriendsId().add(friendUserId);
         userStorage.findUserById(friendUserId).getFriendsId().add(userId);
+        friendsDao.addFriend(userId,friendUserId);
     }
 
+    @Override
     public List<User> getFriendList(long userId) {
         if (userId <= 0) {
             log.debug("User {}", userId);
@@ -56,6 +62,7 @@ public class UserService {
         return friendList;
     }
 
+    @Override
     public void deleteFriend(long userId, long friendUserId) {
         checkUserAndFriendId(userId, friendUserId);
         if (!userStorage.findUserById(userId).getFriendsId().contains(userStorage.findUserById(friendUserId).getId())) {
@@ -74,6 +81,7 @@ public class UserService {
         userStorage.findUserById(friendUserId).getFriendsId().remove(userId);
     }
 
+    @Override
     public List<User> getListMutualFriends(long userId, long friendUserId) {
         checkUserAndFriendId(userId, friendUserId);
         List<Long> mutualFriendsId = userStorage.findUserById(userId).getFriendsId().stream()
