@@ -25,8 +25,8 @@ public class MpaRatingController {
         return mpaService.getAllMpaRatings();
     }
 
-    @GetMapping("/{MpaId}")
-    public Mpa getMpaRating(@PathVariable("MpaId") int mpaId) {
+    @GetMapping("/{mpaId}")
+    public Mpa getMpaRating(@PathVariable("mpaId") int mpaId) {
         return mpaService.getMpaRating(mpaId);
     }
 }

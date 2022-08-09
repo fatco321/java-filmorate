@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 @Getter
 public class UserServiceDb implements UserService {
     private final FriendsDao friendsDao;
-    public final UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserServiceDb(FriendsDao friendsDao, @Qualifier("dbUserStorage") UserStorage userStorage) {

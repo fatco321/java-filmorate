@@ -30,7 +30,8 @@ public class FilmDbStorage implements FilmStorage {
     private static final LocalDate FIRST_FILM_RELEASE = LocalDate.of(1895, 12, 28);
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDaoImp mpaDao, GenreDaoImp genreDaoImp, FilmLikeDaoImp filmLikeDaoImp) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDaoImp mpaDao,
+                         GenreDaoImp genreDaoImp, FilmLikeDaoImp filmLikeDaoImp) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDao = mpaDao;
         this.genreDao = genreDaoImp;
