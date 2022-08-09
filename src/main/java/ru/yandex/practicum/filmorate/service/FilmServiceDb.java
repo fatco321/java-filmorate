@@ -31,7 +31,8 @@ public class FilmServiceDb implements FilmService {
     private void checkId(Long filmId, Long userId) {
         log.debug("check user {} check film {}", userId, filmId);
         if (filmId == null || filmId <= 0 || userId == null || userId <= 0) {
-            throw new IdNotFoundException(String.format("User with id:%s or film with id:%s not found", userId, filmId));
+            throw new IdNotFoundException(String.format("User with id:%s or film with id:%s not found",
+                    userId, filmId));
         }
     }
 

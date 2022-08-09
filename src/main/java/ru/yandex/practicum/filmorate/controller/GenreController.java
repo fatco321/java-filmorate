@@ -6,27 +6,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.GenreDao;
+import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/genres")
 public class GenreController {
-    private final GenreDao genreDao;
+    private final GenreService genreService;
 
     @Autowired
-    public GenreController(GenreDao genreDao) {
-        this.genreDao = genreDao;
+    public GenreController(GenreService genreService) {
+        this.genreService = genreService;
     }
 
     @GetMapping
     public Collection<Genre> getAllGenre() {
-        return genreDao.getAllGenres();
+        return genreService.getAllGenres();
     }
 
     @GetMapping("/{genreId}")
     public Genre getGenre(@PathVariable("genreId") int genreId) {
-        return genreDao.getGenreFromDb(genreId);
+        return genreService.getGenre(genreId);
     }
 }
