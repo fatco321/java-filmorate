@@ -2,25 +2,25 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmLikeNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.filmstorage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.serviseinterface.FilmService;
+import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service("InMemoryFilmService")
 @Getter
 @Slf4j
-public class FilmService {
-    private final InMemoryFilmStorage filmStorage;
+public class FilmServiceInMemory implements FilmService {
+    private final FilmStorage filmStorage;
 
-    @Autowired
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage) {
-        this.filmStorage = inMemoryFilmStorage;
+    public FilmServiceInMemory(@Qualifier("dbFilmStorage") FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
     private void checkId(Long filmId, Long userId) {
@@ -33,12 +33,14 @@ public class FilmService {
         }
     }
 
+    @Override
     public void addFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         log.debug("User {} likes film {}", userId, filmId);
         filmStorage.findFilmById(filmId).getUsersLike().add(userId);
     }
 
+    @Override
     public void deleteFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         if (!filmStorage.findFilmById(filmId).getUsersLike().contains(userId)) {
@@ -50,6 +52,7 @@ public class FilmService {
         filmStorage.findFilmById(filmId).getUsersLike().remove(userId);
     }
 
+    @Override
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getAllFilms().stream()
                 .sorted((p0, p1) -> p1.getUsersLike().size() - p0.getUsersLike().size())

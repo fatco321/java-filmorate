@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.filmstorage;
+package ru.yandex.practicum.filmorate.storage.filmstorage.inmemory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.AlreadyUseException;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 @Slf4j
-@Component
+@Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> filmMap = new HashMap<>();
     private static final LocalDate FIRST_FILM_RELEASE = LocalDate.of(1895, 12, 28);

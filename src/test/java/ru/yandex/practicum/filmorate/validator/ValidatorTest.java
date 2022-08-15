@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.filmstorage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.userstorage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.filmstorage.inmemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.userstorage.inmemory.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,15 +18,17 @@ public class ValidatorTest {
 
     @Test
     public void test01_FilmValidateWithCorrectModel() {
-        Film film = new Film(1, "Test Name", "Test",
-                LocalDate.of(2000, 12, 1), 20, new HashSet<>());
+        Film film = Film.builder().id(1).name("TestName").description("Test")
+                .releaseDate(LocalDate.of(2000, 12, 1)).duration(20).usersLike(new HashSet<>())
+                .build();
         assertEquals(film, inMemoryFilmStorage.addFilm(film));
     }
 
     @Test
     public void test02_FilmValidateWithInCorrectReleaseDate() {
-        Film film = new Film(1, "Test Name", "Test",
-                LocalDate.of(1000, 12, 1), 20, new HashSet<>());
+        Film film = Film.builder().id(1).name("TestName").description("Test")
+                .releaseDate(LocalDate.of(1000, 12, 1)).duration(20).usersLike(new HashSet<>())
+                .build();
         assertThrows(ValidationException.class, () -> inMemoryFilmStorage.addFilm(film));
     }
 
