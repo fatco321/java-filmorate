@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmSt
 import ru.yandex.practicum.filmorate.storage.filmstorage.database.FilmLikeDaoImp;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service("DbFilmService")
 @Getter
@@ -51,9 +50,6 @@ public class FilmServiceDb implements FilmService {
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.getAllFilms().stream()
-                .sorted((p0, p1) -> p1.getUsersLike().size() - p0.getUsersLike().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getPopularFilms(count);
     }
 }

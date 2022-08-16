@@ -6,10 +6,9 @@ import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.userstorage.storageinterface.UserStorage;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Component("inMemoryUserStorage")
@@ -75,6 +74,19 @@ public class InMemoryUserStorage implements UserStorage {
             throw new IdNotFoundException("User not found");
         }
         return userMap.get(id);
+    }
+
+    @Override
+    public List<User> getListMutualFriends(long userId, long friendUserId) {
+        List<Long> mutualFriendsId = findUserById(userId).getFriendsId().stream()
+                .filter(findUserById(friendUserId).getFriendsId()::contains)
+                .collect(toList());
+        List<User> mutualFriends = new ArrayList<>();
+        for (long mutualId : mutualFriendsId) {
+            mutualFriends.add(findUserById(mutualId));
+        }
+        log.debug("User {} friend {} mutual friends list {}", userId, friendUserId, mutualFriends);
+        return mutualFriends;
     }
 
     private void validate(User user) {

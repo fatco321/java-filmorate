@@ -9,10 +9,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component("inMemoryFilmStorage")
@@ -75,6 +73,14 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new IdNotFoundException(String.format("film with id:%s not found", filmId));
         }
         return filmMap.get(filmId);
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        return getAllFilms().stream()
+                .sorted((p0, p1) -> p1.getUsersLike().size() - p0.getUsersLike().size())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     @Override

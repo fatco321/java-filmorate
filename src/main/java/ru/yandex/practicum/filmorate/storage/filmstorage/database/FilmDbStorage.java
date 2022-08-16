@@ -103,6 +103,13 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, filmId);
     }
 
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        String sql = "select films.* from  FILMS left join FILMS_LIKES FL on FILMS.FILM_ID = FL.FILM_ID " +
+                "group by  films.FILM_ID order by count(USER_ID) desc  limit  ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
     private long saveFilmAndReturnId(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films").usingGeneratedKeyColumns("film_id");

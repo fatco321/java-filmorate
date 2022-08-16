@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Component("dbUserStorage")
@@ -84,6 +85,13 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * from USERS where USER_ID = ?";
         log.debug("getting user with id {}", userId);
         return jdbcTemplate.queryForObject(sql, this::mapRowToUser, userId);
+    }
+
+    @Override
+    public List<User> getListMutualFriends(long userId, long friendUserId) {
+        String sql = "select u.* from USERS u, FRIENDS l, FRIENDS r " +
+                "where u.USER_ID = l.FRIEND_ID and u.USER_ID = r.FRIEND_ID and l.USER_ID = ? and r.USER_ID = ?";
+        return jdbcTemplate.query(sql, this::mapRowToUser, userId, friendUserId);
     }
 
     private void validate(User user) {
