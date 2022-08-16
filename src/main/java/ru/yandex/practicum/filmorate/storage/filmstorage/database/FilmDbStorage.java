@@ -49,7 +49,7 @@ public class FilmDbStorage implements FilmStorage {
             genreDao.addFilmsGenres(film);
         }
         log.debug("add film {}", film.getId());
-        return film;
+        return findFilmById(film.getId());
     }
 
     @Override
