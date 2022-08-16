@@ -47,7 +47,7 @@ public class FilmDbStorage implements FilmStorage {
             directorDao.addDirectorsToFilm(film.getId(), film.getDirectors());
         }
         log.debug("add film {}", film.getId());
-        return film;
+        return findFilmById(film.getId());
     }
     
     @Override
