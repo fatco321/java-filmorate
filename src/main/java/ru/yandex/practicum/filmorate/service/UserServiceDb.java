@@ -50,16 +50,7 @@ public class UserServiceDb implements UserService {
 
     @Override
     public List<User> getListMutualFriends(long userId, long friendUserId) {
-        checkUserAndFriendId(userId, friendUserId);
-        List<Long> mutualFriendsId = userStorage.findUserById(userId).getFriendsId().stream()
-                .filter(userStorage.findUserById(friendUserId).getFriendsId()::contains)
-                .collect(toList());
-        List<User> mutualFriends = new ArrayList<>();
-        for (long mutualId : mutualFriendsId) {
-            mutualFriends.add(userStorage.findUserById(mutualId));
-        }
-        log.debug("User {} friend {} mutual friends list {}", userId, friendUserId, mutualFriends);
-        return mutualFriends;
+       return userStorage.getListMutualFriends(userId, friendUserId);
     }
 
     @Override

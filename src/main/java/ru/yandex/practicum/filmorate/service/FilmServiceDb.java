@@ -49,7 +49,7 @@ public class FilmServiceDb implements FilmService {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        return filmStorage.getPopularFilms(count);
+    public List<Film> getPopularFilms(int count, int genreId, int year) {
+        return filmStorage.getPopularFilms(count, genreId, year);
     }
 }

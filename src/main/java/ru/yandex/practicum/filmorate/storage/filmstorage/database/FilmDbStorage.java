@@ -104,9 +104,34 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        String sql = "select films.* from  FILMS left join FILMS_LIKES FL on FILMS.FILM_ID = FL.FILM_ID " +
-                "group by  films.FILM_ID order by count(USER_ID) desc  limit  ?";
+    public List<Film> getPopularFilms(int count, int genreId, int year) {
+        if (genreId > genreDao.getAllGenres().size()) {
+            throw new IdNotFoundException(String.format("Genre with id %s not found", genreId));
+        }
+        if (year > LocalDate.now().getYear()) {
+            throw new IdNotFoundException(String.format("Incorrect film release date %s", year));
+        }
+        String sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
+                "group by  f.FILM_ID order by count(USER_ID) desc  limit  ?";
+        if (genreId != 0 && year == 0) {
+            sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
+                    "left join FILMS_GENRES FG on f.FILM_ID = FG.FILM_ID " +
+                    "where GENRE_ID = ? group by f.FILM_ID order by count(USER_ID) limit ?";
+            return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+        }
+        if (genreId == 0 && year != 0) {
+            sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
+                    "where extract(year from f.RELEASE_DATE) = ? group by  f.FILM_ID " +
+                    "order by count(USER_ID) desc  limit  ?";
+            return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+        }
+        if (genreId != 0 && year != 0) {
+            sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
+                    "left join FILMS_GENRES FG on f.FILM_ID = FG.FILM_ID " +
+                    "where GENRE_ID = ? and extract(year from f.RELEASE_DATE) = ? " +
+                    "group by f.FILM_ID order by count(USER_ID) limit ?";
+            return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+        }
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
     }
 

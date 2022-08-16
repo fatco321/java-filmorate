@@ -10,7 +10,7 @@ public interface FilmService {
 
     void deleteFilmLike(long filmId, long userId);
 
-    List<Film> getPopularFilms(int count);
+    List<Film> getPopularFilms(int count, int genreId, int year);
 
     FilmStorage getFilmStorage();
 }

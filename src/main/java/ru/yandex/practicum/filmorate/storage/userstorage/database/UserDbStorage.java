@@ -89,8 +89,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getListMutualFriends(long userId, long friendUserId) {
-        String sql = "select u.* from USERS u, FRIENDS l, FRIENDS r " +
-                "where u.USER_ID = l.FRIEND_ID and u.USER_ID = r.FRIEND_ID and l.USER_ID = ? and r.USER_ID = ?";
+        String sql = "select u.* from USERS u, FRIENDS f1, FRIENDS f2 where u.USER_ID = f1.FRIEND_ID and " +
+                "u.USER_ID = f2.FRIEND_ID and f1.USER_ID = ? and f2.USER_ID = ?";
         return jdbcTemplate.query(sql, this::mapRowToUser, userId, friendUserId);
     }
 
