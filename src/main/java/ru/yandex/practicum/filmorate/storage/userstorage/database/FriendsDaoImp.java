@@ -14,12 +14,12 @@ import java.util.List;
 @Slf4j
 public class FriendsDaoImp implements FriendsDao {
     private final JdbcTemplate jdbcTemplate;
-
+    
     @Autowired
     public FriendsDaoImp(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
+    
     @Override
     public List<Long> getFriends(long userId) {
         if (noExists(userId)) {
@@ -29,7 +29,7 @@ public class FriendsDaoImp implements FriendsDao {
         String sql = "select FRIEND_ID from FRIENDS where USER_ID = ?";
         return jdbcTemplate.queryForList(sql, Long.class, userId);
     }
-
+    
     @Override
     public void addFriend(long userId, long friendUserId) {
         checkEqualityIdAndExists(userId, friendUserId);
@@ -38,7 +38,7 @@ public class FriendsDaoImp implements FriendsDao {
         checkAndChangeFriendsStatus(userId, friendUserId);
         log.debug("user {} friend with user {}", userId, friendUserId);
     }
-
+    
     @Override
     public void deleteFriend(long userId, long friendUserId) {
         checkEqualityIdAndExists(userId, friendUserId);
@@ -46,7 +46,7 @@ public class FriendsDaoImp implements FriendsDao {
         jdbcTemplate.update(sql, userId, friendUserId);
         log.debug("user {} delete friend {}", userId, friendUserId);
     }
-
+    
     private void checkEqualityIdAndExists(long userId, long friendUserId) {
         if (userId == friendUserId) {
             log.debug("user {} friend id {}", userId, friendUserId);
@@ -57,7 +57,7 @@ public class FriendsDaoImp implements FriendsDao {
             throw new IdNotFoundException(String.format("Users with id %s, %s not found", userId, friendUserId));
         }
     }
-
+    
     private void checkAndChangeFriendsStatus(long userId, long friendUserId) {
         String sql = "select count(*) from FRIENDS where FRIEND_ID = ? and USER_ID = ?";
         Integer result = jdbcTemplate.queryForObject(sql, Integer.class, userId, friendUserId);
@@ -67,7 +67,7 @@ public class FriendsDaoImp implements FriendsDao {
             jdbcTemplate.update(sql, friendUserId, userId);
         }
     }
-
+    
     @Override
     public List<Long> getUserAllFriendsId(long userId) {
         if (noExists(userId)) {
@@ -77,7 +77,7 @@ public class FriendsDaoImp implements FriendsDao {
         String sql = "select FRIEND_ID from FRIENDS where USER_ID = ?";
         return jdbcTemplate.queryForList(sql, Long.class, userId);
     }
-
+    
     private boolean noExists(long id) {
         String sql = "select count(*) from USERS where USER_ID = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, id);

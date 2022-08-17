@@ -6,6 +6,6 @@ import java.util.Collection;
 
 public interface MpaDao {
     Collection<Mpa> getAllMpa();
-
+    
     Mpa getMpaFromDb(int mpaId);
 }
