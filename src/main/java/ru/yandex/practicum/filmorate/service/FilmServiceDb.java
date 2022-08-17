@@ -21,39 +21,39 @@ import java.util.List;
 public class FilmServiceDb implements FilmService {
     private final FilmStorage filmStorage;
     private final FilmLikeDao filmLikeDao;
-    
+
     @Autowired
     public FilmServiceDb(@Qualifier("dbFilmStorage") FilmStorage filmStorage, FilmLikeDaoImp filmLikeDaoImp) {
         this.filmStorage = filmStorage;
         this.filmLikeDao = filmLikeDaoImp;
     }
-    
+
     private void checkId(Long filmId, Long userId) {
         log.debug("check user {} check film {}", userId, filmId);
         if (filmId == null || filmId <= 0 || userId == null || userId <= 0) {
             throw new IdNotFoundException(String.format("User with id:%s or film with id:%s not found",
-                userId, filmId));
+                    userId, filmId));
         }
     }
-    
+
     @Override
     public void addFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         log.debug("User {} likes film {}", userId, filmId);
         filmLikeDao.addLike(filmId, userId);
     }
-    
+
     @Override
     public void deleteFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         filmLikeDao.deleteLike(filmId, userId);
     }
-    
+
     @Override
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getPopularFilms(count);
     }
-    
+
     @Override
     public List<Film> getDirectorFilms(long directorId, String sortBy) {
         if ("year".equalsIgnoreCase(sortBy) || "likes".equalsIgnoreCase(sortBy)) {
@@ -61,5 +61,10 @@ public class FilmServiceDb implements FilmService {
         } else {
             throw new BadRequestException(String.format("RequestParam sortBy = %s is invalid. Must be \"likes\" or \"year\"", sortBy));
         }
+    }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 }
