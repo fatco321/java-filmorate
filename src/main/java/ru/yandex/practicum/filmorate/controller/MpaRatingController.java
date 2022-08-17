@@ -14,17 +14,17 @@ import java.util.Collection;
 @RequestMapping("/mpa")
 public class MpaRatingController {
     private final MpaService mpaService;
-
+    
     @Autowired
     public MpaRatingController(MpaService mpaService) {
         this.mpaService = mpaService;
     }
-
+    
     @GetMapping
     public Collection<Mpa> getAllMpaRatings() {
         return mpaService.getAllMpaRatings();
     }
-
+    
     @GetMapping("/{mpaId}")
     public Mpa getMpaRating(@PathVariable("mpaId") int mpaId) {
         return mpaService.getMpaRating(mpaId);

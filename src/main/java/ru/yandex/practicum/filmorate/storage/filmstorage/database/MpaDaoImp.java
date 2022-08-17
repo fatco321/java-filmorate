@@ -16,18 +16,18 @@ import java.util.Collection;
 @Slf4j
 public class MpaDaoImp implements MpaDao {
     private final JdbcTemplate jdbcTemplate;
-
+    
     @Autowired
     public MpaDaoImp(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
+    
     @Override
     public Collection<Mpa> getAllMpa() {
         String sql = "select * from MPA_RATINGS";
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
-
+    
     @Override
     public Mpa getMpaFromDb(int mpaId) {
         if (noExists(mpaId)) {
@@ -37,12 +37,12 @@ public class MpaDaoImp implements MpaDao {
         String sql = "select rating_id, rating from mpa_ratings where rating_id = ?";
         return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, mpaId);
     }
-
+    
     private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
         return Mpa.builder().id(resultSet.getInt("rating_id")).name(resultSet.getString("rating"))
-                .build();
+            .build();
     }
-
+    
     private boolean noExists(int mpaId) {
         String sql = "select count (*) from mpa_ratings where RATING_ID = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, mpaId);

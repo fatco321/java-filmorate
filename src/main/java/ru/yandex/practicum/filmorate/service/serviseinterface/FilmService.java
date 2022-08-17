@@ -7,10 +7,12 @@ import java.util.List;
 
 public interface FilmService {
     void addFilmLike(long filmId, long userId);
-
+    
     void deleteFilmLike(long filmId, long userId);
-
+    
     List<Film> getPopularFilms(int count);
-
+    
     FilmStorage getFilmStorage();
+    
+    List<Film> getDirectorFilms(long directorId, String sortBy);
 }

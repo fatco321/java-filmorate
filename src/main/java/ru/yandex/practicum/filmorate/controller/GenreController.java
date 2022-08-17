@@ -14,17 +14,17 @@ import java.util.Collection;
 @RequestMapping("/genres")
 public class GenreController {
     private final GenreService genreService;
-
+    
     @Autowired
     public GenreController(GenreService genreService) {
         this.genreService = genreService;
     }
-
+    
     @GetMapping
     public Collection<Genre> getAllGenre() {
         return genreService.getAllGenres();
     }
-
+    
     @GetMapping("/{genreId}")
     public Genre getGenre(@PathVariable("genreId") int genreId) {
         return genreService.getGenre(genreId);

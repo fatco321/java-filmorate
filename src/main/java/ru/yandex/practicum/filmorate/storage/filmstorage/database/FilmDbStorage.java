@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.DirectorDao;
@@ -34,11 +33,9 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreDao genreDao;
     private final FilmLikeDao filmLikeDao;
     private final DirectorDao directorDao;
-    private static final LocalDate FIRST_FILM_RELEASE = LocalDate.of(1895, 12, 28);
     
     @Override
     public Film addFilm(Film film) {
-        validate(film);
         if (film.getMpa() != null) {
             film.setMpa(mpaDao.getMpaFromDb(film.getMpa().getId()));
         }
@@ -178,14 +175,6 @@ public class FilmDbStorage implements FilmStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
             .withTableName("films").usingGeneratedKeyColumns("film_id");
         return simpleJdbcInsert.executeAndReturnKey(film.toMap()).longValue();
-    }
-    
-    
-    private void validate(Film film) {
-        if (film.getReleaseDate().isBefore(FIRST_FILM_RELEASE)) {
-            log.debug("film not valid release date:{}", film.getReleaseDate());
-            throw new ValidationException("Release date not valid");
-        }
     }
     
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {

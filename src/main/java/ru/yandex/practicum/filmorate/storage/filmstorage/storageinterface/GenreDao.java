@@ -8,11 +8,11 @@ import java.util.Set;
 
 public interface GenreDao {
     Genre getGenreFromDb(int genreId);
-
+    
     Collection<Genre> getAllGenres();
-
+    
     void addFilmsGenres(Film film);
-
+    
     void updateFilmsGenres(Film film);
     
     Set<Genre> getGenresForFilm(long filmId);

@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.serviseinterface.FilmService;
 
@@ -13,7 +11,6 @@ import java.util.List;
 
 @RestController()
 @RequestMapping("/films")
-@Slf4j
 public class FilmController {
     private final FilmService filmService;
     
@@ -69,10 +66,7 @@ public class FilmController {
     
     @GetMapping("/director/{directorId}")
     public List<Film> getDirectorFilms(@PathVariable long directorId, @RequestParam String sortBy) {
-        if ("year".equalsIgnoreCase(sortBy) || "likes".equalsIgnoreCase(sortBy)) {
-            return filmService.getFilmStorage().getDirectorFilms(directorId, sortBy);
-        } else {
-            throw new BadRequestException(String.format("RequestParam sortBy = %s is invalid. Must be \"likes\" or \"year\"", sortBy));
-        }
+        return filmService.getDirectorFilms(directorId, sortBy);
+        
     }
 }
