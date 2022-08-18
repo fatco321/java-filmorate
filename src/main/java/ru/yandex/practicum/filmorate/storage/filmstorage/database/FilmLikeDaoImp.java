@@ -41,13 +41,13 @@ public class FilmLikeDaoImp implements FilmLikeDao {
         checkFilmId(filmId);
         String sql = "delete from FILMS_LIKES where USER_ID = ? and FILM_ID = ?";
         jdbcTemplate.update(sql, userId, filmId);
-        log.debug("delet film {} like from user{}", filmId, userId);
+        log.debug("delete film {} like from user{}", filmId, userId);
     }
     
     private void checkFilmId(long id) {
         String sql = "select count(*) from FILMS_LIKES where FILM_ID = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, id);
-        if (result != 1) {
+        if (result == 0) {
             throw new FilmLikeNotFoundException(String.format("film with id:%s not found", id));
         }
     }
