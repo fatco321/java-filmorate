@@ -55,13 +55,6 @@ public class ErrorHandler {
     }
     
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
-        log.warn(String.format("Unexpected error: %s", e.getMessage()));
-        return new ErrorResponse("unexpected error");
-    }
-    
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequest(final BadRequestException e) {
         log.warn(String.format("Bad request: %s", e.getMessage()));
