@@ -30,7 +30,7 @@ public class FilmLikeDaoImp implements FilmLikeDao {
     
     @Override
     public void addLike(long filmId, long userId) {
-        String sql = "insert into films_likes (film_id, user_id) " +
+        String sql = "merge into films_likes key (film_id, user_id) " +
             "values (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
         log.debug("add like to film {} from user {}", filmId, userId);

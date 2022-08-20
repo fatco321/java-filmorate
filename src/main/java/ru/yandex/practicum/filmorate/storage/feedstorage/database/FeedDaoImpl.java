@@ -34,37 +34,11 @@ public class FeedDaoImpl implements FeedDao {
     }
     
     @Override
-    public void updateFeed(Feed feed) {
-    
-    }
-    
-    @Override
-    public Feed getFeedById(long feedId) {
-        return null;
-    }
-    
-    @Override
-    public void deleteFeedById(long feedId) {
-    
-    }
-    
-    @Override
     public List<Feed> getUserFeeds(long userId) {
         
         String sql = "SELECT * FROM feeds " +
             "WHERE user_id = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFeed(rs), userId);
-        
-    }
-    
-    @Override
-    public void deleteAllFeeds() {
-    
-    }
-    
-    @Override
-    public boolean isFeedExist(long feedId) {
-        return false;
     }
     
     private Feed makeFeed(ResultSet resultSet) throws SQLException {

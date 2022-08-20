@@ -18,34 +18,4 @@ public class FeedServiceDB implements FeedService {
     public List<Feed> getFeedsByUserId(long userId) {
         return feedDao.getUserFeeds(userId);
     }
-    
-    @Override
-    public Feed createFeed(Feed feed) {
-        return feedDao.createFeed(feed);
-    }
-    
-    @Override
-    public void updateFeed(long feedId) {
-    
-    }
-    
-    @Override
-    public Feed getFeedById(long feedId) {
-        return null;
-    }
-    
-    @Override
-    public void deleteFeedById(long feedId) {
-    
-    }
-    
-    @Override
-    public void deleteAllFeeds() {
-    
-    }
-    
-    @Override
-    public boolean isFeedExist(long feedId) {
-        return false;
-    }
 }
