@@ -51,4 +51,11 @@ public class FilmLikeDaoImp implements FilmLikeDao {
             throw new FilmLikeNotFoundException(String.format("film with id:%s not found", id));
         }
     }
+
+    @Override
+    public Set<Long> getUserFilmLikes(long userId) {
+        String sql = "select FILM_ID from films_likes where USER_ID = ?";
+        List<Long> usersLike = jdbcTemplate.queryForList(sql, Long.class, userId);
+        return new LinkedHashSet<>(usersLike);
+    }
 }
