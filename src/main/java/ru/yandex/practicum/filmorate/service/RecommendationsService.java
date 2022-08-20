@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,18 +18,12 @@ import java.util.Set;
  * Сервис поиска рекомендаций для пользователя.
  */
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class RecommendationsService {
     private final UserRecommendations userRecommendations;
     private final FilmLikeDao filmLikeDao;
     private final FilmStorage filmStorage;
-
-    @Autowired
-    public RecommendationsService(RecommendationsDao userRecommendations, FilmLikeDao filmLikeDao,
-                                  FilmStorage filmStorage) {
-        this.userRecommendations = userRecommendations;
-        this.filmLikeDao = filmLikeDao;
-        this.filmStorage = filmStorage;
-    }
 
     /**
      * Возвращает список рекомендованных фильмов.
@@ -35,10 +31,11 @@ public class RecommendationsService {
      * @param userId id пользователя.
      */
     public List<Film> getRecommendations(Long userId) {
+        log.debug("RRequest for recommendation for User ID {} in processing.", userId);
         List<Film> recommendedFilms = new ArrayList<>();
-        Set<Long> userFilms = filmLikeDao.getUserFilmLikes(userId);
+        Set<Long> userFilmIds = filmLikeDao.getUserFilmLikes(userId);
 
-       if (userFilms.size() == 0) {
+       if (userFilmIds.size() == 0) {
             return recommendedFilms;
         }
 
@@ -48,7 +45,7 @@ public class RecommendationsService {
         }
 
         Set<Long> recommendedFilmIds = filmLikeDao.getUserFilmLikes(likeMindedUserId);
-        recommendedFilmIds.removeAll(userFilms);
+        recommendedFilmIds.removeAll(userFilmIds);
 
         for (Long id : recommendedFilmIds) {
             recommendedFilms.add(filmStorage.findFilmById(id));

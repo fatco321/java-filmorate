@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.userstorage.database;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,14 +14,9 @@ import java.sql.SQLException;
  * DAO для сервиса рекомендаций.
  */
 @Component
-@Slf4j
+@RequiredArgsConstructor
 public class RecommendationsDao implements UserRecommendations {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public RecommendationsDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Long getLikeMindedUserId(Long userId) {
@@ -38,11 +34,12 @@ public class RecommendationsDao implements UserRecommendations {
                 "group by UIM.USER_ID " +
                 "order by diff desc " +
                 "limit 1;";
-        try {
-            return jdbcTemplate.queryForObject(sql, this::mapRowToInteger, userId, userId);
-        } catch (RuntimeException ex) {
-            return null;
-        }
+//        try {
+            return jdbcTemplate.query(sql, this::mapRowToInteger, userId, userId).stream().findAny().orElse(null);
+            //jdbcTemplate.queryForObject(sql, this::mapRowToInteger, userId, userId);
+//        } catch (RuntimeException ex) {
+//            return null;
+//        }
     }
 
     private Long mapRowToInteger(ResultSet resultSet, int rowNum) throws SQLException {
