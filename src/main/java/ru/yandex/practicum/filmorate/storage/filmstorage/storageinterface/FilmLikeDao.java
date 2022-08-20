@@ -8,4 +8,10 @@ public interface FilmLikeDao {
     void addLike(long filmId, long userId);
     
     void deleteLike(long filmId, long userId);
+
+    /**
+     * Получение сета всех фильмов, которым пользователь поставил лайк.
+     * @param userId id пользователя.
+     */
+    Set<Long> getUserFilmLikes(long userId);
 }
