@@ -26,52 +26,52 @@ public class FilmServiceDb implements FilmService {
     private final FilmStorage filmStorage;
     private final FilmLikeDao filmLikeDao;
     private final FeedDao feedDao;
-    
-    
+
+
     private void checkId(Long filmId, Long userId) {
         log.debug("check user {} check film {}", userId, filmId);
         if (filmId == null || filmId <= 0 || userId == null || userId <= 0) {
             throw new IdNotFoundException(String.format("User with id:%s or film with id:%s not found",
-                userId, filmId));
+                    userId, filmId));
         }
     }
-    
+
     @Override
     public void addFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         log.debug("User {} likes film {}", userId, filmId);
         filmLikeDao.addLike(filmId, userId);
-        
+
         feedDao.createFeed(Feed.builder()
-            .timestamp(Instant.now().toEpochMilli())
-            .userId(userId)
-            .entityId(filmId)
-            .operation(Operation.ADD)
-            .eventType(EventType.LIKE)
-            .build()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .entityId(filmId)
+                .operation(Operation.ADD)
+                .eventType(EventType.LIKE)
+                .build()
         );
     }
-    
+
     @Override
     public void deleteFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         filmLikeDao.deleteLike(filmId, userId);
-        
+
         feedDao.createFeed(Feed.builder()
-            .timestamp(Instant.now().toEpochMilli())
-            .userId(userId)
-            .entityId(filmId)
-            .operation(Operation.REMOVE)
-            .eventType(EventType.LIKE)
-            .build()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .entityId(filmId)
+                .operation(Operation.REMOVE)
+                .eventType(EventType.LIKE)
+                .build()
         );
     }
-    
+
     @Override
     public List<Film> getPopularFilms(int count, int genreId, int year) {
         return filmStorage.getPopularFilms(count, genreId, year);
     }
-    
+
     @Override
     public List<Film> getDirectorFilms(long directorId, String sortBy) {
         if ("year".equalsIgnoreCase(sortBy) || "likes".equalsIgnoreCase(sortBy)) {
@@ -80,9 +80,16 @@ public class FilmServiceDb implements FilmService {
             throw new BadRequestException(String.format("RequestParam sortBy = %s is invalid. Must be \"likes\" or \"year\"", sortBy));
         }
     }
-    
+
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
         return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        boolean title = by.toLowerCase().contains("title");
+        boolean director = by.toLowerCase().contains("director");
+        return filmStorage.searchFilms(query, title, director);
     }
 }
