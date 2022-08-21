@@ -33,6 +33,7 @@ public class Film {
     private Integer duration;
     private Set<Long> usersLike;
     private Set<Genre> genres;
+    @NotNull
     private Mpa mpa;
     private int rate;
     private Set<Director> directors;
