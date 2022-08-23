@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.userstorage.database;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.userstorage.storageinterface.UserRecommendations;
@@ -34,12 +32,7 @@ public class RecommendationsDao implements UserRecommendations {
                 "group by UIM.USER_ID " +
                 "order by diff desc " +
                 "limit 1;";
-//        try {
             return jdbcTemplate.query(sql, this::mapRowToInteger, userId, userId).stream().findAny().orElse(null);
-            //jdbcTemplate.queryForObject(sql, this::mapRowToInteger, userId, userId);
-//        } catch (RuntimeException ex) {
-//            return null;
-//        }
     }
 
     private Long mapRowToInteger(ResultSet resultSet, int rowNum) throws SQLException {

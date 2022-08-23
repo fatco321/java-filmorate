@@ -33,7 +33,7 @@ public class FriendsDaoImp implements FriendsDao {
     @Override
     public void addFriend(long userId, long friendUserId) {
         checkEqualityIdAndExists(userId, friendUserId);
-        String sql = "insert into FRIENDS (USER_ID, FRIEND_ID, FRIEND_STATUS) VALUES (? ,? , false)";
+        String sql = "insert into FRIENDS (USER_ID, FRIEND_ID, FRIEND_STATUS) values (? ,? , false)";
         jdbcTemplate.update(sql, userId, friendUserId);
         checkAndChangeFriendsStatus(userId, friendUserId);
         log.debug("user {} friend with user {}", userId, friendUserId);

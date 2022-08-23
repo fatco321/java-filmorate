@@ -3,12 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.AlreadyUseException;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
-import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.Operation;
 import ru.yandex.practicum.filmorate.service.serviseinterface.ReviewService;
@@ -18,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.reviewsstorage.storageinterface.Rev
 import ru.yandex.practicum.filmorate.storage.reviewsstorage.storageinterface.ReviewUserDao;
 import ru.yandex.practicum.filmorate.storage.userstorage.storageinterface.UserStorage;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,19 +30,11 @@ public class ReviewsServiceDB implements ReviewService {
 
     @Override
     public Review addReview(Review review) {
-        User user = userStorage.findUserById(review.getUserId());
-        Film film = filmStorage.findFilmById(review.getFilmId());
-        isNotExistReviewByUserAndFilm(user.getId(), film.getId());
+        userStorage.findUserById(review.getUserId());
+        filmStorage.findFilmById(review.getFilmId());
         review.setUseful(0);
         Review resultReview = reviewDao.createReview(review);
-
-        feedDao.createFeed(Feed.builder()
-                .timestamp(Instant.now().toEpochMilli())
-                .userId(resultReview.getUserId())
-                .entityId(resultReview.getReviewId())
-                .eventType(EventType.REVIEW)
-                .operation(Operation.ADD)
-                .build());
+        feedDao.createFeed(resultReview.getUserId(),resultReview.getReviewId(), EventType.REVIEW, Operation.ADD);
         return resultReview;
     }
 
@@ -56,28 +43,14 @@ public class ReviewsServiceDB implements ReviewService {
         Review dbReview = getReviewById(review.getReviewId());
         review.setUseful(dbReview.getUseful());
         reviewDao.updateReview(review);
-
-        feedDao.createFeed(Feed.builder()
-                .timestamp(Instant.now().toEpochMilli())
-                .userId(dbReview.getUserId())
-                .entityId(dbReview.getReviewId())
-                .eventType(EventType.REVIEW)
-                .operation(Operation.UPDATE)
-                .build());
+        feedDao.createFeed(dbReview.getUserId(),dbReview.getReviewId(), EventType.REVIEW, Operation.UPDATE);
         return review;
     }
 
     @Override
     public void deleteReview(long id) {
         Review review = getReviewById(id);
-        feedDao.createFeed(Feed.builder()
-                .timestamp(Instant.now().toEpochMilli())
-                .userId(review.getUserId())
-                .entityId(review.getReviewId())
-                .eventType(EventType.REVIEW)
-                .operation(Operation.REMOVE)
-                .build());
-
+       feedDao.createFeed(review.getUserId(),review.getReviewId(), EventType.REVIEW, Operation.REMOVE);
         reviewDao.deleteReview(id);
     }
 
@@ -98,7 +71,7 @@ public class ReviewsServiceDB implements ReviewService {
 
     @Override
     public void addLikeToReview(long reviewId, long userId) {
-        User user = userStorage.findUserById(userId);
+        userStorage.findUserById(userId);
         Review review = getReviewById(reviewId);
         review.setUseful(review.getUseful() + 1);
         reviewDao.updateReview(review);
@@ -107,7 +80,7 @@ public class ReviewsServiceDB implements ReviewService {
 
     @Override
     public void addDislikeToReview(long reviewId, long userId) {
-        User user = userStorage.findUserById(userId);
+        userStorage.findUserById(userId);
         Review review = getReviewById(reviewId);
         review.setUseful(review.getUseful() - 1);
         reviewDao.updateReview(review);
@@ -116,7 +89,7 @@ public class ReviewsServiceDB implements ReviewService {
 
     @Override
     public void deleteLikeToReview(long reviewId, long userId) {
-        User user = userStorage.findUserById(userId);
+        userStorage.findUserById(userId);
         Review review = getReviewById(reviewId);
         review.setUseful(review.getUseful() - 1);
         reviewDao.updateReview(review);
@@ -125,20 +98,9 @@ public class ReviewsServiceDB implements ReviewService {
 
     @Override
     public void deleteDislikeToReview(long reviewId, long userId) {
-        User user = userStorage.findUserById(userId);
         Review review = getReviewById(reviewId);
         review.setUseful(review.getUseful() + 1);
         reviewDao.updateReview(review);
         reviewUserDao.deleteDislikeToReview(reviewId, userId);
     }
-
-    private boolean isNotExistReviewByUserAndFilm(long userId, long filmId) {
-        Optional<Review> reviewOptional = reviewDao.getReviewByUserAndFilm(userId, filmId);
-        if (reviewOptional.isPresent()) {
-            throw new AlreadyUseException(String.format("User c id {} уже создал review на фильм с id {}",
-                    userId, filmId));
-        }
-        return true;
-    }
-
 }

@@ -45,7 +45,7 @@ public class UserDbStorage implements UserStorage {
             log.debug("User id:{}", userId);
             throw new IdNotFoundException("Id not found");
         }
-        String sql = "DELETE from USERS where USER_ID = ?";
+        String sql = "delete from USERS where USER_ID = ?";
         jdbcTemplate.update(sql, userId);
         log.debug("user with id {} is deleted", userId);
     }
@@ -65,13 +65,13 @@ public class UserDbStorage implements UserStorage {
     
     @Override
     public Collection<User> getAllUsers() {
-        String sql = "SELECT * from USERS";
+        String sql = "select * from USERS";
         return jdbcTemplate.query(sql, this::mapRowToUser);
     }
     
     @Override
     public void deleteAllUsers() {
-        String sql = "DELETE FROM USERS";
+        String sql = "delete from USERS";
         jdbcTemplate.update(sql);
         log.debug("all users deleted");
     }
@@ -82,7 +82,7 @@ public class UserDbStorage implements UserStorage {
             log.debug("User id:{}", userId);
             throw new IdNotFoundException("Id not found");
         }
-        String sql = "SELECT * from USERS where USER_ID = ?";
+        String sql = "select * from USERS where USER_ID = ?";
         log.debug("getting user with id {}", userId);
         return jdbcTemplate.queryForObject(sql, this::mapRowToUser, userId);
     }

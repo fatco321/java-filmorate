@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.Operation;
@@ -15,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.feedstorage.storageinterface.FeedDa
 import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmLikeDao;
 import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmStorage;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service("DbFilmService")
@@ -41,30 +39,14 @@ public class FilmServiceDb implements FilmService {
         checkId(filmId, userId);
         log.debug("User {} likes film {}", userId, filmId);
         filmLikeDao.addLike(filmId, userId);
-
-        feedDao.createFeed(Feed.builder()
-                .timestamp(Instant.now().toEpochMilli())
-                .userId(userId)
-                .entityId(filmId)
-                .operation(Operation.ADD)
-                .eventType(EventType.LIKE)
-                .build()
-        );
+        feedDao.createFeed(userId,filmId,EventType.LIKE,Operation.ADD);
     }
 
     @Override
     public void deleteFilmLike(long filmId, long userId) {
         checkId(filmId, userId);
         filmLikeDao.deleteLike(filmId, userId);
-
-        feedDao.createFeed(Feed.builder()
-                .timestamp(Instant.now().toEpochMilli())
-                .userId(userId)
-                .entityId(filmId)
-                .operation(Operation.REMOVE)
-                .eventType(EventType.LIKE)
-                .build()
-        );
+        feedDao.createFeed(userId,filmId,EventType.LIKE,Operation.REMOVE);
     }
 
     @Override
