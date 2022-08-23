@@ -32,13 +32,13 @@ public class GenreDaoImp implements GenreDao {
             log.debug("getting genre with incorrect id {}", genreId);
             throw new IdNotFoundException(String.format("Genre with id:%s not found", genreId));
         }
-        String sql = "select genre_id, genre from genres where genre_id = ?";
+        String sql = "select * from genres where GENRE_ID = ?";
         return jdbcTemplate.queryForObject(sql, this::mapRowToGenre, genreId);
     }
     
     @Override
     public Collection<Genre> getAllGenres() {
-        String sql = "select * from genres";
+        String sql = "select * from GENRES";
         return jdbcTemplate.query(sql, this::mapRowToGenre);
     }
     
@@ -49,7 +49,7 @@ public class GenreDaoImp implements GenreDao {
     
     @Override
     public void addFilmsGenres(Film film) {
-        String sql = "insert into films_genres (film_id, genre_id) " +
+        String sql = "insert into FILMS_GENRES (FILM_ID, GENRE_ID) " +
             "values (?, ?)";
         for (Genre genre : film.getGenres()) {
             jdbcTemplate.update(sql, film.getId(), genre.getId());
@@ -63,7 +63,7 @@ public class GenreDaoImp implements GenreDao {
     }
     
     private boolean exist(int genreId) {
-        String sql = "select count(*) from Genres where GENRE_ID = ?";
+        String sql = "select count(*) from GENRES where GENRE_ID = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, genreId);
         return result == 1;
     }

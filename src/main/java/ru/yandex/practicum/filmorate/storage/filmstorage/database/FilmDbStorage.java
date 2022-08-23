@@ -53,7 +53,7 @@ public class FilmDbStorage implements FilmStorage {
             log.debug("try delete film {} with incorrect id", filmId);
             throw new IdNotFoundException(String.format("film with id:%s not found", filmId));
         }
-        String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
+        String sql = "delete from FILMS where FILM_ID = ?";
         jdbcTemplate.update(sql, filmId);
     }
 

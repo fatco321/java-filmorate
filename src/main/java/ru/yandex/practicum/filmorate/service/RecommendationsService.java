@@ -2,17 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmLikeDao;
 import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.userstorage.database.RecommendationsDao;
 import ru.yandex.practicum.filmorate.storage.userstorage.storageinterface.UserRecommendations;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Сервис поиска рекомендаций для пользователя.
@@ -34,8 +33,7 @@ public class RecommendationsService {
         log.debug("RRequest for recommendation for User ID {} in processing.", userId);
         List<Film> recommendedFilms = new ArrayList<>();
         Set<Long> userFilmIds = filmLikeDao.getUserFilmLikes(userId);
-
-       if (userFilmIds.size() == 0) {
+        if (userFilmIds.size() == 0) {
             return recommendedFilms;
         }
 
@@ -46,10 +44,7 @@ public class RecommendationsService {
 
         Set<Long> recommendedFilmIds = filmLikeDao.getUserFilmLikes(likeMindedUserId);
         recommendedFilmIds.removeAll(userFilmIds);
-
-        for (Long id : recommendedFilmIds) {
-            recommendedFilms.add(filmStorage.findFilmById(id));
-        }
+        recommendedFilms = recommendedFilmIds.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
 
         return recommendedFilms;
     }
