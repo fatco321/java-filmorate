@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.IdNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.DirectorDao;
-import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmLikeDao;
-import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.GenreDao;
+import ru.yandex.practicum.filmorate.storage.filmstorage.storageinterface.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,6 +27,7 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreDao genreDao;
     private final FilmLikeDao filmLikeDao;
     private final DirectorDao directorDao;
+    private final FilmMarkDao filmMarkDao;
 
     @Override
     public Film addFilm(Film film) {
@@ -78,8 +76,6 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sql,
                 film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getRate(), film.getMpa().getId(), film.getId());
-       /* пришлось так сделать чтоб пройти тест (Friend film genres update with duplicate) postman
-        т.к. он чувствителен к порядку выдачи жанров.*/
         film.setDirectors(directorDao.getDirectorsForFilm(film.getId()));
         film.setGenres(genreDao.getGenresForFilm(film.getId()));
         return film;
@@ -109,12 +105,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(int count, int genreId, int year) {
-        if (genreId > genreDao.getAllGenres().size()) {
-            throw new IdNotFoundException(String.format("Genre with id %s not found", genreId));
-        }
-        if (year > LocalDate.now().getYear()) {
-            throw new IdNotFoundException(String.format("Incorrect film release date %s", year));
-        }
+        checkGenreIdAndReleaseDate(genreId, year);
         String sql = "select f.* from  films f left join films_likes fl on f.film_id = fl.film_id " +
                 "group by  f.film_id order by count(user_id) desc  limit  ?";
         if (genreId != 0 && year == 0) {
@@ -137,6 +128,46 @@ public class FilmDbStorage implements FilmStorage {
             return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
         }
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByMarksAvg(int count, int genreId, int year) {
+        checkGenreIdAndReleaseDate(genreId, year);
+        String sql = "select f.*, avg(fl.mark) as avg from  films f " +
+                "left join films_marks fl on f.film_id = fl.film_id " +
+                "group by  f.film_id order by avg desc  limit  ?";
+        if (genreId != 0 && year == 0) {
+            sql = "select f.*, avg(fl.mark) as avg from  films f " +
+                    "left join films_marks fl on f.film_id = fl.film_id " +
+                    "left join films_genres fg on f.film_id = fg.film_id " +
+                    "where genre_id = ? group by f.film_id order by avg limit ?";
+            return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+        }
+        if (genreId == 0 && year != 0) {
+            sql = "select f.*, avg(fl.mark) as avg from  films f " +
+                    "left join films_marks fl on f.film_id = fl.film_id " +
+                    "where extract(year from f.release_date) = ? group by  f.film_id " +
+                    "order by avg desc  limit  ?";
+            return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+        }
+        if (genreId != 0 && year != 0) {
+            sql = "select f.*, avg(FL.mark) as avg from  films f " +
+                    "left join films_marks fl on f.film_id = fl.film_id " +
+                    "left join films_genres FG on f.film_id = fg.film_id " +
+                    "where genre_id = ? and extract(year from f.release_date) = ? " +
+                    "group by f.film_id order by avg limit ?";
+            return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+        }
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    private void checkGenreIdAndReleaseDate(int genreId, int year){
+        if (genreId > genreDao.getAllGenres().size()) {
+            throw new IdNotFoundException(String.format("Genre with id %s not found", genreId));
+        }
+        if (year > LocalDate.now().getYear()) {
+            throw new IdNotFoundException(String.format("Incorrect film release date %s", year));
+        }
     }
 
     @Override
@@ -181,11 +212,35 @@ public class FilmDbStorage implements FilmStorage {
                             "order by f.release_date";
                     break;
                 }
+                case "marks": {
+                    sqlQuery = "with a as (select director_id, " +
+                            "d.film_id, " +
+                            "avg(mark) AS markAvg " +
+                            "from film_directors as d " +
+                            "left join films_marks as l on d.film_id = l.film_id " +
+                            "group by director_id, " +
+                            "d.film_id " +
+                            "order by markAvg desc ) " +
+                            "select director_id, " +
+                            "a.markAvg, " +
+                            "f.film_id, " +
+                            "film_name, " +
+                            "film_description, " +
+                            "release_date, " +
+                            "duration, " +
+                            "film_rate, " +
+                            "mpa_id, " +
+                            "director_id " +
+                            "from a " +
+                            "left join films as f on a.film_id = f.film_id " +
+                            "where director_id = ?";
+                    break;
+                }
                 default:
                     throw new BadRequestException(String
-                            .format("RequestParam sortBy = %s is invalid. Must be \"likes\" or \"year\"", sortBy));
+                            .format("RequestParam sortBy = %s is invalid. " +
+                                    "Must be \"likes\" or \"year\" or \"marks\"", sortBy));
             }
-
             return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, directorId);
         } else {
             throw new IdNotFoundException(String
@@ -224,7 +279,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Film> searchByDirector(String query) {
-        String sql = "select f.* from films f, directors d, film_directors fd " +
+        String sql = "select f.* from  films f,directors d, film_directors fd " +
                 "where f.film_id = fd.film_id and fd.director_id = d.director_id and lower(director_name) like ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, "%" + query.toLowerCase() + "%");
     }
@@ -247,6 +302,7 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(getFilmGenres((int) resultSet.getLong("film_id")))
                 .usersLike(filmLikeDao.getUserLikes((int) resultSet.getLong("film_id")))
                 .directors(directorDao.getDirectorsForFilm((int) resultSet.getLong("film_id")))
+                .markAvg(filmMarkDao.getFilmMarkAvgById(resultSet.getLong("film_id")))
                 .build();
     }
 
