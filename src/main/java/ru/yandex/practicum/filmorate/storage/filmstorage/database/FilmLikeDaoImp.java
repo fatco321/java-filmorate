@@ -30,7 +30,7 @@ public class FilmLikeDaoImp implements FilmLikeDao {
     
     @Override
     public void addLike(long filmId, long userId) {
-        String sql = "merge into films_likes key (FILM_ID, USER_ID) " +
+        String sql = "merge into films_likes key (film_id, user_id) " +
             "values (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
         log.debug("add like to film {} from user {}", filmId, userId);
@@ -39,13 +39,13 @@ public class FilmLikeDaoImp implements FilmLikeDao {
     @Override
     public void deleteLike(long filmId, long userId) {
         checkFilmId(filmId);
-        String sql = "delete from FILMS_LIKES where USER_ID = ? and FILM_ID = ?";
+        String sql = "delete from films_likes where user_id = ? and film_id = ?";
         jdbcTemplate.update(sql, userId, filmId);
         log.debug("delete film {} like from user{}", filmId, userId);
     }
     
     private void checkFilmId(long id) {
-        String sql = "select count(*) from FILMS_LIKES where FILM_ID = ?";
+        String sql = "select count(*) from films_likes where film_id = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, id);
         if (result == 0) {
             throw new FilmLikeNotFoundException(String.format("film with id:%s not found", id));
@@ -54,7 +54,7 @@ public class FilmLikeDaoImp implements FilmLikeDao {
 
     @Override
     public Set<Long> getUserFilmLikes(long userId) {
-        String sql = "select FILM_ID from films_likes where USER_ID = ?";
+        String sql = "select film_id from films_likes where user_id = ?";
         List<Long> usersLike = jdbcTemplate.queryForList(sql, Long.class, userId);
         return new LinkedHashSet<>(usersLike);
     }

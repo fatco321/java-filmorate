@@ -24,7 +24,7 @@ public class MpaDaoImp implements MpaDao {
     
     @Override
     public Collection<Mpa> getAllMpa() {
-        String sql = "select * from MPA_RATINGS";
+        String sql = "select * from mpa_ratings";
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
     
@@ -44,7 +44,7 @@ public class MpaDaoImp implements MpaDao {
     }
     
     private boolean noExists(int mpaId) {
-        String sql = "select count (*) from MPA_RATINGS where RATING_ID = ?";
+        String sql = "select count (*) from mpa_ratings where rating_id = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, mpaId);
         return result == 0;
     }

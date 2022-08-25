@@ -32,13 +32,13 @@ public class GenreDaoImp implements GenreDao {
             log.debug("getting genre with incorrect id {}", genreId);
             throw new IdNotFoundException(String.format("Genre with id:%s not found", genreId));
         }
-        String sql = "select * from genres where GENRE_ID = ?";
+        String sql = "select * from genres where genre_id = ?";
         return jdbcTemplate.queryForObject(sql, this::mapRowToGenre, genreId);
     }
     
     @Override
     public Collection<Genre> getAllGenres() {
-        String sql = "select * from GENRES";
+        String sql = "select * from genres";
         return jdbcTemplate.query(sql, this::mapRowToGenre);
     }
     
@@ -49,7 +49,7 @@ public class GenreDaoImp implements GenreDao {
     
     @Override
     public void addFilmsGenres(Film film) {
-        String sql = "insert into FILMS_GENRES (FILM_ID, GENRE_ID) " +
+        String sql = "insert into films_genres (film_id, genre_id) " +
             "values (?, ?)";
         for (Genre genre : film.getGenres()) {
             jdbcTemplate.update(sql, film.getId(), genre.getId());
@@ -63,24 +63,24 @@ public class GenreDaoImp implements GenreDao {
     }
     
     private boolean exist(int genreId) {
-        String sql = "select count(*) from GENRES where GENRE_ID = ?";
+        String sql = "select count(*) from genres where genre_id = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, genreId);
         return result == 1;
     }
     
     private void deleteFromFilmsGenres(Film film) {
-        String sql = "delete from FILMS_GENRES where FILM_ID = ?";
+        String sql = "delete from films_genres where film_id = ?";
         jdbcTemplate.update(sql, film.getId());
         
     }
     
     @Override
     public Set<Genre> getGenresForFilm(long filmId) {
-        String sqlQuery = "select g.GENRE_ID, " +
-            "g.GENRE " +
-            "from FILMS_GENRES fg " +
-            "join GENRES g on fg.GENRE_ID = g.GENRE_ID " +
-            "where FILM_ID = ?";
+        String sqlQuery = "select g.genre_id, " +
+            "g.genre " +
+            "from films_genres fg " +
+            "join genres g on fg.genre_id = g.genre_id " +
+            "where film_id = ?";
         return new LinkedHashSet<>(jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs), filmId));
     }
     
