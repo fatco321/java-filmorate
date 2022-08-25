@@ -44,7 +44,9 @@ public class RecommendationsService {
 
         Set<Long> recommendedFilmIds = filmLikeDao.getUserFilmLikes(likeMindedUserId);
         recommendedFilmIds.removeAll(userFilmIds);
-        recommendedFilms = recommendedFilmIds.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
+        recommendedFilms = recommendedFilmIds.stream()
+                .map(filmStorage::findFilmById)
+                .collect(Collectors.toList());
 
         return recommendedFilms;
     }

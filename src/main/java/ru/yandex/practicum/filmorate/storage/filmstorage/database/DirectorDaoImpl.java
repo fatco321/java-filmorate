@@ -21,19 +21,19 @@ public class DirectorDaoImpl implements DirectorDao {
     
     @Override
     public List<Director> getAllDirectors() {
-        String sqlQuery = "select DIRECTOR_ID, " +
-            "DIRECTOR_NAME " +
-            "from DIRECTORS";
+        String sqlQuery = "select director_id, " +
+            "director_name " +
+            "from directors";
         
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs));
     }
     
     @Override
     public Director getDirectorById(long id) {
-        String sqlQuery = "select DIRECTOR_ID, " +
-            "DIRECTOR_NAME " +
-            "from DIRECTORS " +
-            "where DIRECTOR_ID = ?";
+        String sqlQuery = "select director_id, " +
+            "director_name " +
+            "from directors " +
+            "where director_id = ?";
         
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs), id)
             .stream()
@@ -59,9 +59,9 @@ public class DirectorDaoImpl implements DirectorDao {
     
     @Override
     public void updateDirector(Director director) {
-        String sqlQuery = "update DIRECTORS set " +
-            "DIRECTOR_NAME = ? " +
-            "where DIRECTOR_ID = ?";
+        String sqlQuery = "update directors set " +
+            "director_name = ? " +
+            "where director_id = ?";
         
         if (isDirectorExist(director.getId())) {
             jdbcTemplate.update(sqlQuery, director.getName(), director.getId());
@@ -74,7 +74,7 @@ public class DirectorDaoImpl implements DirectorDao {
     @Override
     public void deleteDirector(long id) {
         if (isDirectorExist(id)) {
-            String sqlQuery = "delete from DIRECTORS where DIRECTOR_ID = ?";
+            String sqlQuery = "delete from directors where director_id = ?";
             jdbcTemplate.update(sqlQuery, id);
         } else {
             throw new IdNotFoundException(String
@@ -84,23 +84,23 @@ public class DirectorDaoImpl implements DirectorDao {
     
     @Override
     public boolean isDirectorExist(long id) {
-        String sqlQuery = "select * from DIRECTORS where DIRECTOR_ID = ?";
+        String sqlQuery = "select * from directors where director_id = ?";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs), id).stream().findAny().isPresent();
     }
     
     @Override
     public Set<Director> getDirectorsForFilm(long filmId) {
-        String sqlQuery = "select d.DIRECTOR_ID, " +
-            "DIRECTOR_NAME " +
-            "from FILM_DIRECTORS fd " +
-            "join DIRECTORS d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
-            "where FILM_ID = ?";
+        String sqlQuery = "select d.director_id, " +
+            "director_name " +
+            "from film_directors fd " +
+            "join directors d on fd.director_id = d.director_id " +
+            "where film_id = ?";
         return new LinkedHashSet<>(jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs), filmId));
     }
     
     @Override
     public void addDirectorsToFilm(long filmId, Set<Director> directors) {
-        jdbcTemplate.update("delete from FILM_DIRECTORS where FILM_ID = ?", filmId);
+        jdbcTemplate.update("delete from film_directors where film_id = ?", filmId);
         
         if (directors != null) {
             StringBuilder sqlQuery = new StringBuilder("insert into FILM_DIRECTORS values");

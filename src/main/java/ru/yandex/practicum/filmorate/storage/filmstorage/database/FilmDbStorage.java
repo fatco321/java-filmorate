@@ -53,7 +53,7 @@ public class FilmDbStorage implements FilmStorage {
             log.debug("try delete film {} with incorrect id", filmId);
             throw new IdNotFoundException(String.format("film with id:%s not found", filmId));
         }
-        String sql = "delete from FILMS where FILM_ID = ?";
+        String sql = "delete from films where film_id = ?";
         jdbcTemplate.update(sql, filmId);
     }
 
@@ -67,14 +67,14 @@ public class FilmDbStorage implements FilmStorage {
             genreDao.updateFilmsGenres(film);
         }
         directorDao.addDirectorsToFilm(film.getId(), film.getDirectors());
-        String sql = "update FILMS set " +
-                "FILM_NAME = ?, " +
-                "FILM_DESCRIPTION = ?, " +
-                "RELEASE_DATE = ?, " +
-                "DURATION = ?, " +
-                "FILM_RATE = ?, " +
-                "MPA_ID = ? " +
-                "where FILM_ID = ?";
+        String sql = "update films set " +
+                "film_name = ?, " +
+                "film_description = ?, " +
+                "release_date = ?, " +
+                "duration = ?, " +
+                "film_rate = ?, " +
+                "mpa_id = ? " +
+                "where film_id = ?";
         jdbcTemplate.update(sql,
                 film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getRate(), film.getMpa().getId(), film.getId());
@@ -115,25 +115,25 @@ public class FilmDbStorage implements FilmStorage {
         if (year > LocalDate.now().getYear()) {
             throw new IdNotFoundException(String.format("Incorrect film release date %s", year));
         }
-        String sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
-                "group by  f.FILM_ID order by count(USER_ID) desc  limit  ?";
+        String sql = "select f.* from  films f left join films_likes fl on f.film_id = fl.film_id " +
+                "group by  f.film_id order by count(user_id) desc  limit  ?";
         if (genreId != 0 && year == 0) {
-            sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
-                    "left join FILMS_GENRES FG on f.FILM_ID = FG.FILM_ID " +
-                    "where GENRE_ID = ? group by f.FILM_ID order by count(USER_ID) limit ?";
+            sql = "select f.* from  films f left join films_likes fl on f.film_id = fl.film_id " +
+                    "left join films_genres fg on f.film_id = fg.film_id " +
+                    "where genre_id = ? group by f.film_id order by count(user_id) limit ?";
             return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
         }
         if (genreId == 0 && year != 0) {
-            sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
-                    "where extract(year from f.RELEASE_DATE) = ? group by  f.FILM_ID " +
-                    "order by count(USER_ID) desc  limit  ?";
+            sql = "select f.* from  films f left join films_likes fl on f.film_id = fl.film_id " +
+                    "where extract(year from f.release_date) = ? group by  f.film_id " +
+                    "order by count(user_id) desc  limit  ?";
             return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
         }
         if (genreId != 0 && year != 0) {
-            sql = "select f.* from  FILMS f left join FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
-                    "left join FILMS_GENRES FG on f.FILM_ID = FG.FILM_ID " +
-                    "where GENRE_ID = ? and extract(year from f.RELEASE_DATE) = ? " +
-                    "group by f.FILM_ID order by count(USER_ID) limit ?";
+            sql = "select f.* from  films f left join films_likes fl on f.film_id = fl.film_id " +
+                    "left join films_genres fg on f.film_id = fg.film_id " +
+                    "where genre_id = ? and extract(year from f.release_date) = ? " +
+                    "group by f.film_id order by count(user_id) limit ?";
             return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
         }
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
@@ -145,40 +145,40 @@ public class FilmDbStorage implements FilmStorage {
             String sqlQuery;
             switch (sortBy) {
                 case "likes": {
-                    sqlQuery = "with a as (select DIRECTOR_ID, " +
-                            "d.FILM_ID, " +
-                            "count(distinct USER_ID) as cnt_users_liked " +
-                            "from FILM_DIRECTORS as d " +
-                            "left join FILMS_LIKES as l on d.FILM_ID = l.FILM_ID " +
-                            "group by DIRECTOR_ID, " +
-                            "d.FILM_ID " +
+                    sqlQuery = "with a as (select director_id, " +
+                            "d.film_id, " +
+                            "count(distinct user_id) as cnt_users_liked " +
+                            "from film_directors as d " +
+                            "left join films_likes as l on d.film_id = l.film_id " +
+                            "group by director_id, " +
+                            "d.film_id " +
                             "order by cnt_users_liked desc ) " +
-                            "select DIRECTOR_ID, " +
+                            "select director_id, " +
                             "a.cnt_users_liked, " +
-                            "f.FILM_ID, " +
-                            "FILM_NAME, " +
-                            "FILM_DESCRIPTION, " +
-                            "RELEASE_DATE, DURATION, " +
-                            "FILM_RATE, " +
-                            "MPA_ID, " +
-                            "DIRECTOR_ID " +
+                            "f.film_id, " +
+                            "film_name, " +
+                            "film_description, " +
+                            "release_date, duration, " +
+                            "film_rate, " +
+                            "mpa_id, " +
+                            "director_id " +
                             "from a " +
-                            "left join FILMS as f on a.FILM_ID = f.FILM_ID " +
-                            "where DIRECTOR_ID = ?";
+                            "left join films as f on a.film_id = f.film_id " +
+                            "where director_id = ?";
                     break;
                 }
                 case "year": {
-                    sqlQuery = "select f.FILM_ID, " +
-                            "FILM_NAME, " +
-                            "FILM_DESCRIPTION, " +
-                            "RELEASE_DATE, DURATION, " +
-                            "FILM_RATE, " +
-                            "MPA_ID, " +
-                            "DIRECTOR_ID " +
-                            "from FILMS f " +
-                            "join FILM_DIRECTORS fd on f.FILM_ID = fd.FILM_ID " +
-                            "where fd.DIRECTOR_ID = ? " +
-                            "order by f.RELEASE_DATE";
+                    sqlQuery = "select f.film_id, " +
+                            "film_name, " +
+                            "film_description, " +
+                            "release_date, duration, " +
+                            "film_rate, " +
+                            "mpa_id, " +
+                            "director_id " +
+                            "from films f " +
+                            "join film_directors fd on f.film_id = fd.film_id " +
+                            "where fd.director_id = ? " +
+                            "order by f.release_date";
                     break;
                 }
                 default:
@@ -195,9 +195,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
-        String sql = "select f.* from FILMS f, FILMS_LIKES fl1, FILMS_LIKES fl2 " +
-                "where fl1.USER_ID = ? and fl2.USER_ID = ? " +
-                "and f.FILM_ID = fl1.FILM_ID and f.FILM_ID = fl2.FILM_ID";
+        String sql = "select f.* from films f, films_likes fl1, films_likes fl2 " +
+                "where fl1.user_id = ? and fl2.user_id = ? " +
+                "and f.film_id = fl1.film_id and f.film_id = fl2.film_id";
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
 
@@ -219,12 +219,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Film> searchByTitle(String query) {
-        String sql = "select * from  FILMS where lower(FILM_NAME) like ?";
+        String sql = "select * from  films where lower(film_name) like ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, "%" + query.toLowerCase() + "%");
     }
 
     private List<Film> searchByDirector(String query) {
-        String sql = "select f.* from  FILMS f,DIRECTORS d, FILM_DIRECTORS fd where f.FILM_ID = fd.FILM_ID and fd.DIRECTOR_ID = d.DIRECTOR_ID and lower(DIRECTOR_NAME) like ?";
+        String sql = "select f.* from films f, directors d, film_directors fd " +
+                "where f.film_id = fd.film_id and fd.director_id = d.director_id and lower(director_name) like ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, "%" + query.toLowerCase() + "%");
     }
 
@@ -251,7 +252,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private Set<Genre> getFilmGenres(int rowNum) {
         Set<Genre> genres = new HashSet<>();
-        String sql = "select GENRE_ID from FILMS_GENRES where FILM_ID = ?";
+        String sql = "select genre_id from films_genres where film_id = ?";
         List<Integer> listGenreId = jdbcTemplate.queryForList(sql, Integer.class, rowNum);
         for (int genreId : listGenreId) {
             genres.add(genreDao.getGenreFromDb(genreId));
@@ -260,7 +261,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private boolean noExists(long id) {
-        String sql = "select count(*) from FILMS where FILM_ID = ?";
+        String sql = "select count(*) from films where film_id = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, id);
         return result == 0;
     }
