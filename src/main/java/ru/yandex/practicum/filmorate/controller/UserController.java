@@ -81,10 +81,13 @@ public class UserController {
     public List<Feed> getFeedsByUserId(@PathVariable("id") long userId) {
         return feedService.getFeedsByUserId(userId);
     }
-    
+
+
     @GetMapping("/{userId}/recommendations")
-    public List<Film> getRecommendations(@PathVariable("userId") long userId) {
+    public List<Film> getRecommendations(@PathVariable("userId") long userId,
+                                         @RequestParam(defaultValue = "false", required = false) boolean mark) {
         log.info("GET Recommendation request received for user id {}", userId);
-        return recommendationsService.getRecommendations(userId);
+        return recommendationsService.getRecommendations(userId, mark);
     }
+
 }

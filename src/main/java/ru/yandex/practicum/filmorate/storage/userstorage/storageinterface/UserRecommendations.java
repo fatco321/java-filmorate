@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.userstorage.storageinterface;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Интерфейс получения пользовательских рекомендаций из БД.
  */
@@ -13,4 +17,6 @@ public interface UserRecommendations {
      * @return id максимально подходящего пользователя.
      */
     Long getLikeMindedUserId(Long userId);
+    Set<Long> getOtherUserIdWhichMarkedAtTheSameFilms(long userId);
+    List<Map<Long, Integer>> getUserListFilmsWithMarks(long userId);
 }

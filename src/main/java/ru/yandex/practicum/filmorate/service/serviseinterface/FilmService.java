@@ -10,7 +10,7 @@ public interface FilmService {
 
     void deleteFilmLike(long filmId, long userId);
 
-    List<Film> getPopularFilms(int count, int genreId, int year);
+    List<Film> getPopularFilms(int count, int genreId, int year, boolean mark);
 
     FilmStorage getFilmStorage();
 
@@ -19,4 +19,7 @@ public interface FilmService {
     List<Film> getCommonFilms(long userId, long friendId);
 
     List<Film> searchFilms(String query, String by);
+
+    void addFilmMark(long filmId, long userId, int mark);
+    void deleteFilmMark(long filmId, long userId);
 }

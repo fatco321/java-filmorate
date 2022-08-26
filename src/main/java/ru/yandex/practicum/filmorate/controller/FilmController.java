@@ -49,7 +49,8 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void addLikeFilm(@PathVariable long filmId, @PathVariable long userId) {
+    public void addLikeFilm(@PathVariable long filmId,
+                            @PathVariable long userId) {
         filmService.addFilmLike(filmId, userId);
     }
 
@@ -62,8 +63,9 @@ public class FilmController {
     public List<Film> getPopularFilms(
             @RequestParam(defaultValue = "10", required = false) int count,
             @RequestParam(defaultValue = "0", required = false) int genreId,
-            @RequestParam(defaultValue = "0", required = false) int year) {
-        return filmService.getPopularFilms(count, genreId, year);
+            @RequestParam(defaultValue = "0", required = false) int year,
+            @RequestParam(defaultValue = "false", required = false) boolean mark) {
+        return filmService.getPopularFilms(count, genreId, year, mark);
     }
 
     @GetMapping("/director/{directorId}")
@@ -84,5 +86,17 @@ public class FilmController {
             @RequestParam String by
     ) {
         return filmService.searchFilms(query, by);
+    }
+
+    @PutMapping("/{filmId}/mark/{userId}")
+    public void addMarkFilm(@PathVariable long filmId,
+                            @PathVariable long userId,
+                            @RequestParam int mark) {
+        filmService.addFilmMark(filmId, userId, mark);
+    }
+
+    @DeleteMapping("/{filmId}/mark/{userId}")
+    public void deleteMarkFilm(@PathVariable long filmId, @PathVariable long userId) {
+        filmService.deleteFilmMark(filmId, userId);
     }
 }
