@@ -58,4 +58,5 @@ public class FilmLikeDaoImp implements FilmLikeDao {
         List<Long> usersLike = jdbcTemplate.queryForList(sql, Long.class, userId);
         return new LinkedHashSet<>(usersLike);
     }
+
 }

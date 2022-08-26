@@ -14,4 +14,5 @@ public interface FilmLikeDao {
      * @param userId id пользователя.
      */
     Set<Long> getUserFilmLikes(long userId);
+
 }
