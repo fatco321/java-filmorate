@@ -16,35 +16,35 @@ import java.util.Collection;
 @Slf4j
 public class MpaDaoImp implements MpaDao {
     private final JdbcTemplate jdbcTemplate;
-
+    
     @Autowired
     public MpaDaoImp(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
+    
     @Override
     public Collection<Mpa> getAllMpa() {
-        String sql = "select * from MPA_RATINGS";
+        String sql = "select * from mpa_ratings";
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
-
+    
     @Override
     public Mpa getMpaFromDb(int mpaId) {
         if (noExists(mpaId)) {
             log.debug("getting mpa rating with incorrect id {}", mpaId);
             throw new IdNotFoundException(String.format("MPA rating with id:%s not found", mpaId));
         }
-        String sql = "select rating_id, rating from mpa_ratings where rating_id = ?";
+        String sql = "select * from mpa_ratings where rating_id = ?";
         return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, mpaId);
     }
-
+    
     private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
         return Mpa.builder().id(resultSet.getInt("rating_id")).name(resultSet.getString("rating"))
-                .build();
+            .build();
     }
-
+    
     private boolean noExists(int mpaId) {
-        String sql = "select count (*) from mpa_ratings where RATING_ID = ?";
+        String sql = "select count (*) from mpa_ratings where rating_id = ?";
         int result = jdbcTemplate.queryForObject(sql, Integer.class, mpaId);
         return result == 0;
     }

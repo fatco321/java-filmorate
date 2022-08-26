@@ -23,7 +23,6 @@ public class FilmController {
         return filmService.getFilmStorage().addFilm(film);
     }
 
-
     @GetMapping
     public Collection<Film> getAll() {
         return filmService.getFilmStorage().getAllFilms();
@@ -61,7 +60,29 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getPopularFilms(
-            @RequestParam(value = "count", defaultValue = "10", required = false) int count) {
-        return filmService.getPopularFilms(count);
+            @RequestParam(defaultValue = "10", required = false) int count,
+            @RequestParam(defaultValue = "0", required = false) int genreId,
+            @RequestParam(defaultValue = "0", required = false) int year) {
+        return filmService.getPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getDirectorFilms(@PathVariable long directorId, @RequestParam String sortBy) {
+        return filmService.getDirectorFilms(directorId, sortBy);
+
+    }
+
+    @GetMapping("common")
+    public List<Film> getCommonFilms(@RequestParam(value = "userId") long userId,
+                                     @RequestParam(value = "friendId") long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by
+    ) {
+        return filmService.searchFilms(query, by);
     }
 }
